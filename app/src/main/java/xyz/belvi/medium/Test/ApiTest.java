@@ -34,6 +34,7 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
         String refresh_token = AppPreference.getValue(this, AppPreference.REFRESH_TOKEN);
         String tokenType = AppPreference.getValue(this, AppPreference.TOKEN_TYPE);
         String accessToken = AppPreference.getValue(this, AppPreference.ACCESS_TOKEN);
+        String userId = AppPreference.getValue(this, AppPreference.USER_ID);
         try {
 //            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.REFRESH_TOKEN)
 //                    .code(code)

@@ -1,5 +1,7 @@
 package xyz.belvi.medium.Enums;
 
+import xyz.belvi.medium.MediumObject.License;
+
 /**
  * Created by zone2 on 6/11/16.
  */
@@ -19,6 +21,15 @@ public class EnumUtils {
                 return scope;
         }
         return null;
+    }
+
+    public static License getLicenseByType(String licenceType) {
+        for (License license : License.values()) {
+            if (license.getLicenseType().equalsIgnoreCase(licenceType)) {
+                return license;
+            }
+        }
+        return License.ALL_RIGHT_RESERVED;
     }
 
 }
