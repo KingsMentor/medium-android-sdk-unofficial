@@ -16,7 +16,7 @@ import xyz.belvi.medium.Enums.PublishStatus;
  */
 public class Post {
     String title = "", content = "", canonicalUrl = "", authorId = "", licenseUrl = "", id = "", url = "";
-    ContentFormat contentFormat = ContentFormat.HTML;
+    ContentFormat contentFormat = ContentFormat.html;
     License license = License.ALL_RIGHT_RESERVED;
     long publishedAt = Calendar.getInstance().getTimeInMillis();
     PublishStatus publishStatus = PublishStatus.DRAFT;
@@ -34,7 +34,7 @@ public class Post {
             jsonObject.put("contentFormat", post.getContentFormat().name());
             jsonObject.put("content", post.getContentFormat().name());
             jsonObject.put("canonicalUrl", post.getContentFormat().name());
-            jsonObject.put("publishStatus", post.getPublishStatus().name());
+            jsonObject.put("publishStatus", post.getPublishStatus().name().toLowerCase());
             JSONArray tags = new JSONArray();
             for (String tagName : post.getTags()) {
                 tags.put(tagName);
