@@ -7,9 +7,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 import xyz.belvi.medium.Callback.MediumConnectionCallback;
 import xyz.belvi.medium.Callback.MediumUserAuthCallback;
+import xyz.belvi.medium.Callback.PublicationCallback;
 import xyz.belvi.medium.ClientOperations.ClientConstant;
 import xyz.belvi.medium.ClientOperations.MediumClient;
 import xyz.belvi.medium.Enums.ApiHost;
@@ -17,14 +19,16 @@ import xyz.belvi.medium.Enums.EnumUtils;
 import xyz.belvi.medium.Enums.ErrorCodes;
 import xyz.belvi.medium.Enums.Scope;
 import xyz.belvi.medium.Exception.MediumException;
+import xyz.belvi.medium.MediumObject.Contributor;
 import xyz.belvi.medium.MediumObject.MediumError;
 import xyz.belvi.medium.MediumObject.MediumUser;
 import xyz.belvi.medium.MediumObject.OauthDetails;
+import xyz.belvi.medium.MediumObject.Publication;
 
 /**
  * Created by zone2 on 6/10/16.
  */
-public class ApiTest extends AppCompatActivity implements MediumConnectionCallback, MediumUserAuthCallback {
+public class ApiTest extends AppCompatActivity implements MediumConnectionCallback, MediumUserAuthCallback,PublicationCallback {
 
 
     @Override
@@ -45,19 +49,19 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
 //                    .addConnectionCallback(this)
 //                    .clientID("347a306d2419").build();
 
-            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.ME)
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.PUBLICATION)
                     .code(code)
                     .clientSecret("32e426452c95528a27bfb0b88d93d2767c45d2f1")
                     .tokenType(tokenType)
+                    .userId(userId)
                     .accessToken(accessToken)
                     .addConnectionCallback(this)
                     .clientID("347a306d2419").build();
 
             mediumClient.connect();
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (MediumException e) {
-            e.printStackTrace();
+            Log.e("error :::: ",e.getMessage());
         }
     }
 
@@ -117,5 +121,15 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
     @Override
     public void onUserDetailsRetrieved(MediumUser mediumUser) {
         AppPreference.saveValue(this, AppPreference.USER_ID, mediumUser.getId());
+    }
+
+    @Override
+    public void onPublicationRetrieved(ArrayList<Publication> publications) {
+
+    }
+
+    @Override
+    public void onReceivedContributors(ArrayList<Contributor> contributors) {
+
     }
 }

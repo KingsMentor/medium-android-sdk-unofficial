@@ -73,31 +73,49 @@ public class MediumClient {
                 protected void onPostExecute(NetworkResponse networkResponse) {
                     super.onPostExecute(networkResponse);
                     if (networkResponse.isSuccess()) {
-                        switch (apiHost) {
-                            case ACCESS_TOKEN:
-                                ((MediumConnectionCallback) connectionCallback).onAccessTokenRetrieved(new OauthDetails(networkResponse.getResponseString()));
-                                break;
-                            case REFRESH_TOKEN:
-                                ((MediumConnectionCallback) connectionCallback).onAccessTokenRefreshed(new OauthDetails(networkResponse.getResponseString()));
-                                break;
-                            case ME:
-                                ((MediumUserAuthCallback) connectionCallback).onUserDetailsRetrieved(new MediumUser(networkResponse.getResponseString()));
-                                break;
-                            case PUBLICATION:
-                                ((PublicationCallback) connectionCallback).onPublicationRetrieved(new Publication().buildPublication(networkResponse.getResponseString()));
-                                break;
-                            case CONTRIBUTION:
-                                ((PublicationCallback) connectionCallback).onReceivedContributors(new Contributor().buildContributor(networkResponse.getResponseString()));
-                                break;
-                            case POST:
-                                ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
-                                break;
-                            case PUBLICATION_POST:
-                                ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
-                                break;
-                            case IMAGE_UPLOAD:
-                                ((MediumPostPublicationCallback) connectionCallback).ImageUploaded(new MediumImage(networkResponse.getResponseString()));
-                                break;
+                        try {
+                            switch (apiHost) {
+                                case ACCESS_TOKEN:
+                                    ((MediumConnectionCallback) connectionCallback).onAccessTokenRetrieved(new OauthDetails(networkResponse.getResponseString()));
+                                    break;
+                                case REFRESH_TOKEN:
+                                    ((MediumConnectionCallback) connectionCallback).onAccessTokenRefreshed(new OauthDetails(networkResponse.getResponseString()));
+                                    break;
+                                case ME:
+                                    ((MediumUserAuthCallback) connectionCallback).onUserDetailsRetrieved(new MediumUser(networkResponse.getResponseString()));
+                                    break;
+                                case PUBLICATION:
+                                    ((PublicationCallback) connectionCallback).onPublicationRetrieved(new Publication().buildPublication(networkResponse.getResponseString()));
+                                    break;
+                                case CONTRIBUTION:
+                                    ((PublicationCallback) connectionCallback).onReceivedContributors(new Contributor().buildContributor(networkResponse.getResponseString()));
+                                    break;
+                                case POST:
+                                    ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
+                                    break;
+                                case PUBLICATION_POST:
+                                    ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
+                                    break;
+                                case IMAGE_UPLOAD:
+                                    ((MediumPostPublicationCallback) connectionCallback).ImageUploaded(new MediumImage(networkResponse.getResponseString()));
+                                    break;
+                            }
+                        } catch (ClassCastException ex) {
+                            MediumError mediumError = null;
+                            if (apiHost == ApiHost.ACCESS_TOKEN || apiHost == ApiHost.REFRESH_TOKEN) {
+
+                                mediumError = new MediumError("please, implement MediumConnectionCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode());
+                            } else if (apiHost == ApiHost.ME) {
+                                mediumError = new MediumError("please, implement MediumUserAuthCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode());
+
+                            } else if (apiHost == ApiHost.CONTRIBUTION || apiHost == ApiHost.PUBLICATION) {
+                                mediumError = new MediumError("please, implement PublicationCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode());
+
+                            } else if (apiHost == ApiHost.POST || apiHost == ApiHost.PUBLICATION_POST || apiHost == ApiHost.IMAGE_UPLOAD) {
+                                mediumError = new MediumError("please, implement MediumPostPublicationCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode());
+                            }
+                            if (mediumError != null)
+                                connectionCallback.connectionFailed(mediumError);
                         }
                     } else {
 
@@ -121,7 +139,7 @@ public class MediumClient {
 
         public Builder(Activity activity, ApiHost apiHost) throws MediumException {
             if (activity == null || apiHost == null)
-                throw new MediumException("can not pass null value");
+                throw new MediumException("can not pass null value for apihost or activity");
             mActivity = activity;
             MediumClient.apiHost = apiHost;
             requestScope = new HashSet<>();
@@ -187,10 +205,14 @@ public class MediumClient {
                 boolean isAuthSuccessful = intent.getBooleanExtra(ClientConstant.connectionStatus, false);
                 if (isAuthSuccessful) {
                     boolean grantedAccess = intent.getBooleanExtra(ClientConstant.connectionAccessStatus, false);
-                    if (grantedAccess) {
-                        ((MediumConnectionCallback) connectionCallback).onCodeRetrieved(intent.getExtras());
-                    } else {
-                        ((MediumConnectionCallback) connectionCallback).onAccessDenied();
+                    try {
+                        if (grantedAccess) {
+                            ((MediumConnectionCallback) connectionCallback).onCodeRetrieved(intent.getExtras());
+                        } else {
+                            ((MediumConnectionCallback) connectionCallback).onAccessDenied();
+                        }
+                    } catch (ClassCastException e) {
+                        connectionCallback.connectionFailed(new MediumError("Please Implement MediumConnectionCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode()));
                     }
 
                 } else
