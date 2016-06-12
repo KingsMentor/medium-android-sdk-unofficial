@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.HashSet;
 
 import xyz.belvi.medium.Enums.ContentFormat;
@@ -14,10 +15,10 @@ import xyz.belvi.medium.Enums.PublishStatus;
  * Created by zone2 on 6/10/16.
  */
 public class Post {
-    String title, content, canonicalUrl, authorId, licenseUrl, id, url;
+    String title = "", content = "", canonicalUrl = "", authorId = "", licenseUrl = "", id = "", url = "";
     ContentFormat contentFormat = ContentFormat.HTML;
-    License license;
-    long publishedAt;
+    License license = License.ALL_RIGHT_RESERVED;
+    long publishedAt = Calendar.getInstance().getTimeInMillis();
     PublishStatus publishStatus = PublishStatus.DRAFT;
     HashSet<String> tags = new HashSet<>();
 

@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import xyz.belvi.medium.Callback.MediumConnectionCallback;
+import xyz.belvi.medium.Callback.MediumPostPublicationCallback;
 import xyz.belvi.medium.Callback.MediumUserAuthCallback;
 import xyz.belvi.medium.Callback.PublicationCallback;
 import xyz.belvi.medium.ClientOperations.ClientConstant;
@@ -21,14 +22,16 @@ import xyz.belvi.medium.Enums.Scope;
 import xyz.belvi.medium.Exception.MediumException;
 import xyz.belvi.medium.MediumObject.Contributor;
 import xyz.belvi.medium.MediumObject.MediumError;
+import xyz.belvi.medium.MediumObject.MediumImage;
 import xyz.belvi.medium.MediumObject.MediumUser;
 import xyz.belvi.medium.MediumObject.OauthDetails;
+import xyz.belvi.medium.MediumObject.Post;
 import xyz.belvi.medium.MediumObject.Publication;
 
 /**
  * Created by zone2 on 6/10/16.
  */
-public class ApiTest extends AppCompatActivity implements MediumConnectionCallback, MediumUserAuthCallback,PublicationCallback {
+public class ApiTest extends AppCompatActivity implements MediumConnectionCallback,MediumPostPublicationCallback, MediumUserAuthCallback,PublicationCallback {
 
 
     @Override
@@ -49,11 +52,12 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
 //                    .addConnectionCallback(this)
 //                    .clientID("347a306d2419").build();
 
-            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.IMAGE_UPLOAD)
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.POST)
                     .code(code)
                     .clientSecret("32e426452c95528a27bfb0b88d93d2767c45d2f1")
                     .tokenType(tokenType)
                     .userId(userId)
+                    .publish(new Post())
                     .accessToken(accessToken)
                     .addConnectionCallback(this)
                     .clientID("347a306d2419").build();
@@ -130,6 +134,16 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
 
     @Override
     public void onReceivedContributors(ArrayList<Contributor> contributors) {
+
+    }
+
+    @Override
+    public void PostPublished(Post post) {
+
+    }
+
+    @Override
+    public void ImageUploaded(MediumImage mediumImage) {
 
     }
 }

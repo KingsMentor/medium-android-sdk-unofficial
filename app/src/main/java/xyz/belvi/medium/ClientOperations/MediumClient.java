@@ -116,7 +116,6 @@ public class MediumClient {
     public static final class Builder {
         private HashSet<Scope> requestScope;
         private Post post;
-        private MediumImage mediumImage;
         private HashMap<String, String> params;
         private String userId, state;
         private String publicationId;
@@ -221,6 +220,8 @@ public class MediumClient {
             } else if (apiHost == ApiHost.CONTRIBUTION) {
                 url = apiHost.getUriPath() + publicationId + "/contributors";
             } else if (apiHost == ApiHost.POST) {
+                if (post == null)
+                    throw new MediumException("build Medium Client with publish(Post postObj) to add a post");
                 networkParams = new Post().getPostObj(post);
                 url = apiHost.getUriPath() + userId + "/posts";
             } else if (apiHost == ApiHost.PUBLICATION_POST) {
@@ -239,15 +240,14 @@ public class MediumClient {
                 boolean isAuthSuccessful = intent.getBooleanExtra(ClientConstant.connectionStatus, false);
                 if (isAuthSuccessful) {
                     boolean grantedAccess = intent.getBooleanExtra(ClientConstant.connectionAccessStatus, false);
-
                     if (grantedAccess) {
                         ((MediumConnectionCallback) connectionCallback).onCodeRetrieved(intent.getExtras());
                     } else {
                         ((MediumConnectionCallback) connectionCallback).onAccessDenied();
                     }
-                } else
+                } else {
                     connectionCallback.connectionFailed(new MediumError("Error occured when making request", ErrorCodes.CONNECTION_FAILED.getErrorCode()));
-
+                }
                 LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(clientConnectionReceiver);
             }
         };
@@ -294,11 +294,6 @@ public class MediumClient {
 
         public Builder tokenType(String tokenType) {
             oauthDetails.setTokenType(tokenType);
-            return this;
-        }
-
-        public Builder addImage(MediumImage mediumImage) {
-            this.mediumImage = mediumImage;
             return this;
         }
 
