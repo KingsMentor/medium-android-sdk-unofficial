@@ -6,59 +6,36 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-
 import xyz.belvi.medium.Callback.MediumConnectionCallback;
-import xyz.belvi.medium.Callback.MediumPostPublicationCallback;
-import xyz.belvi.medium.Callback.MediumUserAuthCallback;
-import xyz.belvi.medium.Callback.PublicationCallback;
 import xyz.belvi.medium.ClientOperations.ClientConstant;
 import xyz.belvi.medium.ClientOperations.MediumClient;
 import xyz.belvi.medium.Enums.ApiHost;
 import xyz.belvi.medium.Enums.EnumUtils;
 import xyz.belvi.medium.Enums.ErrorCodes;
 import xyz.belvi.medium.Enums.Scope;
-import xyz.belvi.medium.Exception.MediumException;
-import xyz.belvi.medium.MediumObject.Contributor;
 import xyz.belvi.medium.MediumObject.MediumError;
-import xyz.belvi.medium.MediumObject.MediumImage;
-import xyz.belvi.medium.MediumObject.MediumUser;
 import xyz.belvi.medium.MediumObject.OauthDetails;
 import xyz.belvi.medium.MediumObject.Post;
-import xyz.belvi.medium.MediumObject.Publication;
 
 /**
  * Created by zone2 on 6/10/16.
  */
-public class ApiTest extends AppCompatActivity implements MediumConnectionCallback,MediumPostPublicationCallback, MediumUserAuthCallback,PublicationCallback {
+public class ApiTest extends AppCompatActivity implements MediumConnectionCallback {
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String code = AppPreference.getValue(this, AppPreference.CODE);
-        String refresh_token = AppPreference.getValue(this, AppPreference.REFRESH_TOKEN);
-        String tokenType = AppPreference.getValue(this, AppPreference.TOKEN_TYPE);
-        String accessToken = AppPreference.getValue(this, AppPreference.ACCESS_TOKEN);
-        String userId = AppPreference.getValue(this, AppPreference.USER_ID);
         try {
-//            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.REFRESH_TOKEN)
-//                    .code(code)
-//                    .clientSecret("32e426452c95528a27bfb0b88d93d2767c45d2f1")
-//                    .refreshToken(refresh_token)
-//                    .redirectUri(null)
-//                    .addConnectionCallback(this)
-//                    .clientID("347a306d2419").build();
 
-            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.POST)
-                    .code(code)
-                    .clientSecret("32e426452c95528a27bfb0b88d93d2767c45d2f1")
-                    .tokenType(tokenType)
-                    .userId(userId)
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.REQUEST_CODE)
                     .publish(new Post())
-                    .accessToken(accessToken)
+                    .addScope(Scope.BASIC)
+                    .addScope(Scope.PUBLICATION)
+                    .addScope(Scope.POST)
+                    .redirectUri(null)
+                    .state("anySate")
                     .addConnectionCallback(this)
                     .clientID("347a306d2419").build();
 
@@ -101,49 +78,8 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
     public void connectionFailed(MediumError mediumError) {
         Log.e("error ::: ", mediumError.getErrorMessage());
         ErrorCodes error = EnumUtils.getErrorObjByCode(mediumError.getErrorCode());
-        if (error == ErrorCodes.AUTH_CODE_EXPIRED || error == ErrorCodes.NO_CODE_SPECIFIED) {
-            MediumClient mediumClient = null;
-            try {
-                mediumClient = new MediumClient.Builder(this, ApiHost.REQUEST_CODE)
-                        .state("nigeria")
-                        .redirectUri(null)
-                        .addScope(Scope.BASIC)
-                        .addScope(Scope.POST)
-                        .addScope(Scope.PUBLICATION)
-                        .addConnectionCallback(this)
-                        .clientID("347a306d2419").build();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (MediumException e) {
-                e.printStackTrace();
-            }
-            mediumClient.connect();
-        }
+
 
     }
 
-    @Override
-    public void onUserDetailsRetrieved(MediumUser mediumUser) {
-        AppPreference.saveValue(this, AppPreference.USER_ID, mediumUser.getId());
-    }
-
-    @Override
-    public void onPublicationRetrieved(ArrayList<Publication> publications) {
-
-    }
-
-    @Override
-    public void onReceivedContributors(ArrayList<Contributor> contributors) {
-
-    }
-
-    @Override
-    public void PostPublished(Post post) {
-
-    }
-
-    @Override
-    public void ImageUploaded(MediumImage mediumImage) {
-
-    }
 }
