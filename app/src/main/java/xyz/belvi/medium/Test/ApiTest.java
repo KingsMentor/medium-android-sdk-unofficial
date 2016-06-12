@@ -16,6 +16,7 @@ import xyz.belvi.medium.Enums.ApiHost;
 import xyz.belvi.medium.Enums.EnumUtils;
 import xyz.belvi.medium.Enums.ErrorCodes;
 import xyz.belvi.medium.Enums.Scope;
+import xyz.belvi.medium.Exception.MediumException;
 import xyz.belvi.medium.MediumObject.MediumError;
 import xyz.belvi.medium.MediumObject.MediumUser;
 import xyz.belvi.medium.MediumObject.OauthDetails;
@@ -54,6 +55,8 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
 
             mediumClient.connect();
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (MediumException e) {
             e.printStackTrace();
         }
     }
@@ -102,6 +105,8 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
                         .addConnectionCallback(this)
                         .clientID("347a306d2419").build();
             } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (MediumException e) {
                 e.printStackTrace();
             }
             mediumClient.connect();

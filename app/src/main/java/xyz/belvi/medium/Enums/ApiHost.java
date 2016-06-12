@@ -12,12 +12,14 @@ public enum ApiHost {
     CONTRIBUTION(true, "https://api.medium.com/v1/publications/", NetworkConstant.GET, ""),
     POST(true, "https://api.medium.com/v1/users/", NetworkConstant.POST, "application/json"),
     PUBLICATION_POST(true, "https://api.medium.com/v1/publications/", NetworkConstant.POST, "application/json"),
-    IMAGE_UPLOAD(true, "https://api.medium.com/v1/images", NetworkConstant.POST, ""),
+    IMAGE_UPLOAD(true, "https://api.medium.com/v1/images", NetworkConstant.POST, "multipart/form-data; boundary=FormBoundaryXYZ", "", ImageContentType.PNG),
     ACCESS_TOKEN(false, "https://api.medium.com/v1/tokens?", NetworkConstant.POST, "authorization_code", "application/x-www-form-urlencoded"),
     REQUEST_CODE(false, "https://medium.com/m/oauth/authorize?", NetworkConstant.GET, null);
 
-    String uriPath, action, grantType, contentType;
+    String uriPath, action, grantType, contentType, filePath;
     boolean hasBearer;
+    ImageContentType imageContentType;
+
 
     ApiHost(boolean hasBearer, String path, String action, String contentType) {
         uriPath = path;
@@ -35,6 +37,32 @@ public enum ApiHost {
         this.contentType = contentType;
         this.hasBearer = hasBearer;
 
+    }
+
+    ApiHost(boolean hasBearer, String path, String action, String contentType, String filePath, ImageContentType imageContentType) {
+        uriPath = path;
+        this.action = action;
+        this.contentType = contentType;
+        this.hasBearer = hasBearer;
+        this.filePath = filePath;
+        this.imageContentType = imageContentType;
+
+    }
+
+    public String getFilePath() {
+        return this.filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public ImageContentType getImageContentType() {
+        return this.imageContentType;
+    }
+
+    public void setImageContentType(ImageContentType imageContentType) {
+        this.imageContentType = imageContentType;
     }
 
     public String getContentType() {

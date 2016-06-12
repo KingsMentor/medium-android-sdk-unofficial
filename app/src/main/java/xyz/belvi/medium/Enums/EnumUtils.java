@@ -32,4 +32,13 @@ public class EnumUtils {
         return License.ALL_RIGHT_RESERVED;
     }
 
+    public static ImageContentType getImageByContentType(String contentType) {
+        for (ImageContentType imageContentType : ImageContentType.values()) {
+            if (imageContentType.getContentType().equalsIgnoreCase(contentType)) {
+                return imageContentType;
+            }
+        }
+        return ImageContentType.PNG;
+    }
+
 }

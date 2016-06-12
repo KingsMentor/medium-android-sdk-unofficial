@@ -23,6 +23,7 @@ public class NetworkCall {
     public static NetworkResponse connect(String link, ApiHost apiHost, String params, OauthDetails oauthDetails) {
 
 
+        String CRLF = "\r\n";
         NetworkResponse networkResponse = new NetworkResponse();
         Log.e("link", link);
         try {
@@ -33,15 +34,30 @@ public class NetworkCall {
             //add request header
             conn.setRequestMethod(apiHost.getAction());
             conn.setRequestProperty("Content-Type", apiHost.getContentType());
+            conn.setRequestProperty("Accept-Charset", "UTF-8");
+
 
             if (apiHost.hasBearer()) {
                 conn.setRequestProperty("Authorization", oauthDetails.getTokenType() + " " + oauthDetails.getAccessToken());
             }
+//            Content-Disposition: form-data; name="image"; filename="filename.png"
+//            Content-Type: image/png
+
             if (apiHost.getAction().trim().equalsIgnoreCase("post")) {
                 // Send post request
                 conn.setDoOutput(true);
                 DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-                wr.writeBytes(params.toString());
+
+                if (apiHost == ApiHost.IMAGE_UPLOAD) {
+                    StringBuilder paramsBuilder = new StringBuilder();
+                    paramsBuilder.append("--FormBoundaryXYZ").append(CRLF).
+                            append("Content-Disposition : form-data; name=\"image\"; filename=\"" + apiHost.getFilePath() + "\"").append(CRLF).
+                            append("Content-Type : " + apiHost.getImageContentType().getContentType()).append(CRLF).
+                            append("IMAGE_DATA").append(CRLF).append("--FormBoundaryXYZ--").append(CRLF);
+                    wr.writeBytes(paramsBuilder.toString());
+                } else {
+                    wr.writeBytes(params.toString());
+                }
                 wr.flush();
                 wr.close();
             }

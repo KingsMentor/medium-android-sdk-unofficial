@@ -16,15 +16,21 @@ import java.util.Map;
 
 import xyz.belvi.medium.Callback.ConnectionCallback;
 import xyz.belvi.medium.Callback.MediumConnectionCallback;
+import xyz.belvi.medium.Callback.MediumPostPublicationCallback;
 import xyz.belvi.medium.Callback.MediumUserAuthCallback;
+import xyz.belvi.medium.Callback.PublicationCallback;
 import xyz.belvi.medium.Enums.ApiHost;
 import xyz.belvi.medium.Enums.ErrorCodes;
+import xyz.belvi.medium.Enums.ImageContentType;
 import xyz.belvi.medium.Enums.Scope;
+import xyz.belvi.medium.Exception.MediumException;
+import xyz.belvi.medium.MediumObject.Contributor;
 import xyz.belvi.medium.MediumObject.MediumError;
 import xyz.belvi.medium.MediumObject.MediumImage;
 import xyz.belvi.medium.MediumObject.MediumUser;
 import xyz.belvi.medium.MediumObject.OauthDetails;
 import xyz.belvi.medium.MediumObject.Post;
+import xyz.belvi.medium.MediumObject.Publication;
 import xyz.belvi.medium.Network.NetworkCall;
 import xyz.belvi.medium.Network.NetworkResponse;
 import xyz.belvi.medium.RequestParams.RequestParams;
@@ -76,7 +82,22 @@ public class MediumClient {
                                 break;
                             case ME:
                                 ((MediumUserAuthCallback) connectionCallback).onUserDetailsRetrieved(new MediumUser(networkResponse.getResponseString()));
-
+                                break;
+                            case PUBLICATION:
+                                ((PublicationCallback) connectionCallback).onPublicationRetrieved(new Publication().buildPublication(networkResponse.getResponseString()));
+                                break;
+                            case CONTRIBUTION:
+                                ((PublicationCallback) connectionCallback).onReceivedContributors(new Contributor().buildContributor(networkResponse.getResponseString()));
+                                break;
+                            case POST:
+                                ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
+                                break;
+                            case PUBLICATION_POST:
+                                ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
+                                break;
+                            case IMAGE_UPLOAD:
+                                ((MediumPostPublicationCallback) connectionCallback).ImageUploaded(new MediumImage(networkResponse.getResponseString()));
+                                break;
                         }
                     } else {
 
@@ -98,7 +119,9 @@ public class MediumClient {
         private String userId, state;
         private String publicationId;
 
-        public Builder(Activity activity, ApiHost apiHost) {
+        public Builder(Activity activity, ApiHost apiHost) throws MediumException {
+            if (activity == null || apiHost == null)
+                throw new MediumException("can not pass null value");
             mActivity = activity;
             MediumClient.apiHost = apiHost;
             requestScope = new HashSet<>();
@@ -118,7 +141,7 @@ public class MediumClient {
             return postData.toString();
         }
 
-        public MediumClient build() throws UnsupportedEncodingException {
+        public MediumClient build() throws MediumException, UnsupportedEncodingException {
 
             if (apiHost == ApiHost.REQUEST_CODE) {
                 LocalBroadcastManager.getInstance(mActivity).registerReceiver(clientConnectionReceiver, new IntentFilter(ClientConstant.connectionReceiverAction));
@@ -139,8 +162,22 @@ public class MediumClient {
                 networkParams = getParamsData();
                 return new MediumClient(apiHost.getUriPath());
 
-            } else {
+            } else if (apiHost == ApiHost.PUBLICATION) {
+                String url = apiHost.getUriPath() + userId + "/publications";
+                return new MediumClient(url);
+            } else if (apiHost == ApiHost.CONTRIBUTION) {
+                String url = apiHost.getUriPath() + publicationId + "/contributors";
+                return new MediumClient(url);
+            } else if (apiHost == ApiHost.POST) {
+                String url = apiHost.getUriPath() + userId + "/posts";
+                return new MediumClient(url);
+            } else if (apiHost == ApiHost.PUBLICATION_POST) {
+                String url = apiHost.getUriPath() + publicationId + "/posts";
+                return new MediumClient(url);
+            } else if (apiHost == ApiHost.IMAGE_UPLOAD) {
                 return new MediumClient(apiHost.getUriPath());
+            } else {
+                throw new MediumException("Unsupported APi Host");
             }
         }
 
@@ -235,6 +272,17 @@ public class MediumClient {
 
         public Builder publicationId(String publicationId) {
             this.publicationId = publicationId;
+            return this;
+        }
+
+        public Builder image(ImageContentType imageContentType, String filePath) throws MediumException {
+            if (apiHost != ApiHost.IMAGE_UPLOAD) {
+                throw new MediumException(apiHost.name() + " does not support Image Upload");
+            } else {
+                apiHost.setFilePath(filePath);
+                apiHost.setImageContentType(imageContentType);
+            }
+
             return this;
         }
 
