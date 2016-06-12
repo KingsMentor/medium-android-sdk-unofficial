@@ -32,8 +32,9 @@ public class Post {
         try {
             jsonObject.put("title", post.getTitle());
             jsonObject.put("contentFormat", post.getContentFormat().name());
-            jsonObject.put("content", post.getContentFormat().name());
-            jsonObject.put("canonicalUrl", post.getContentFormat().name());
+            jsonObject.put("content", post.getContent());
+            if (!post.getCanonicalUrl().trim().isEmpty())
+                jsonObject.put("canonicalUrl", post.getContentFormat().name());
             jsonObject.put("publishStatus", post.getPublishStatus().name().toLowerCase());
             JSONArray tags = new JSONArray();
             for (String tagName : post.getTags()) {

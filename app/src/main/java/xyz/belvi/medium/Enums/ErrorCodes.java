@@ -6,6 +6,8 @@ package xyz.belvi.medium.Enums;
 public enum ErrorCodes {
 
     ACCESS_TOKEN_REQUIRED(6000),
+    INVALID_CONTENT_FORMAT(2003),
+    INVALID_CANONICAL_URL(2011),
     AUTH_CODE_EXPIRED(6017),
     NO_CODE_SPECIFIED(6013),
     INVALID_USER_ID(6026),
