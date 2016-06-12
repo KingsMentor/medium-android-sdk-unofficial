@@ -15,15 +15,35 @@ import xyz.belvi.medium.Enums.PublishStatus;
  */
 public class Post {
     String title, content, canonicalUrl, authorId, licenseUrl, id, url;
-    ContentFormat contentFormat;
+    ContentFormat contentFormat = ContentFormat.HTML;
     License license;
     long publishedAt;
-    PublishStatus publishStatus;
+    PublishStatus publishStatus = PublishStatus.DRAFT;
     HashSet<String> tags = new HashSet<>();
 
 
     public Post() {
 
+    }
+
+    public String getPostObj(Post post) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("title", post.getTitle());
+            jsonObject.put("contentFormat", post.getContentFormat().name());
+            jsonObject.put("content", post.getContentFormat().name());
+            jsonObject.put("canonicalUrl", post.getContentFormat().name());
+            jsonObject.put("publishStatus", post.getPublishStatus().name());
+            JSONArray tags = new JSONArray();
+            for (String tagName : post.getTags()) {
+                tags.put(tagName);
+            }
+            jsonObject.put("tags", tags);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
     }
 
     public Post(String responseObj) {

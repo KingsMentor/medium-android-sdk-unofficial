@@ -49,7 +49,7 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
 //                    .addConnectionCallback(this)
 //                    .clientID("347a306d2419").build();
 
-            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.PUBLICATION)
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.IMAGE_UPLOAD)
                     .code(code)
                     .clientSecret("32e426452c95528a27bfb0b88d93d2767c45d2f1")
                     .tokenType(tokenType)

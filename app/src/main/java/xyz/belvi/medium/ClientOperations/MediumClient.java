@@ -73,50 +73,34 @@ public class MediumClient {
                 protected void onPostExecute(NetworkResponse networkResponse) {
                     super.onPostExecute(networkResponse);
                     if (networkResponse.isSuccess()) {
-                        try {
-                            switch (apiHost) {
-                                case ACCESS_TOKEN:
-                                    ((MediumConnectionCallback) connectionCallback).onAccessTokenRetrieved(new OauthDetails(networkResponse.getResponseString()));
-                                    break;
-                                case REFRESH_TOKEN:
-                                    ((MediumConnectionCallback) connectionCallback).onAccessTokenRefreshed(new OauthDetails(networkResponse.getResponseString()));
-                                    break;
-                                case ME:
-                                    ((MediumUserAuthCallback) connectionCallback).onUserDetailsRetrieved(new MediumUser(networkResponse.getResponseString()));
-                                    break;
-                                case PUBLICATION:
-                                    ((PublicationCallback) connectionCallback).onPublicationRetrieved(new Publication().buildPublication(networkResponse.getResponseString()));
-                                    break;
-                                case CONTRIBUTION:
-                                    ((PublicationCallback) connectionCallback).onReceivedContributors(new Contributor().buildContributor(networkResponse.getResponseString()));
-                                    break;
-                                case POST:
-                                    ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
-                                    break;
-                                case PUBLICATION_POST:
-                                    ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
-                                    break;
-                                case IMAGE_UPLOAD:
-                                    ((MediumPostPublicationCallback) connectionCallback).ImageUploaded(new MediumImage(networkResponse.getResponseString()));
-                                    break;
-                            }
-                        } catch (ClassCastException ex) {
-                            MediumError mediumError = null;
-                            if (apiHost == ApiHost.ACCESS_TOKEN || apiHost == ApiHost.REFRESH_TOKEN) {
 
-                                mediumError = new MediumError("please, implement MediumConnectionCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode());
-                            } else if (apiHost == ApiHost.ME) {
-                                mediumError = new MediumError("please, implement MediumUserAuthCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode());
-
-                            } else if (apiHost == ApiHost.CONTRIBUTION || apiHost == ApiHost.PUBLICATION) {
-                                mediumError = new MediumError("please, implement PublicationCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode());
-
-                            } else if (apiHost == ApiHost.POST || apiHost == ApiHost.PUBLICATION_POST || apiHost == ApiHost.IMAGE_UPLOAD) {
-                                mediumError = new MediumError("please, implement MediumPostPublicationCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode());
-                            }
-                            if (mediumError != null)
-                                connectionCallback.connectionFailed(mediumError);
+                        switch (apiHost) {
+                            case ACCESS_TOKEN:
+                                ((MediumConnectionCallback) connectionCallback).onAccessTokenRetrieved(new OauthDetails(networkResponse.getResponseString()));
+                                break;
+                            case REFRESH_TOKEN:
+                                ((MediumConnectionCallback) connectionCallback).onAccessTokenRefreshed(new OauthDetails(networkResponse.getResponseString()));
+                                break;
+                            case ME:
+                                ((MediumUserAuthCallback) connectionCallback).onUserDetailsRetrieved(new MediumUser(networkResponse.getResponseString()));
+                                break;
+                            case PUBLICATION:
+                                ((PublicationCallback) connectionCallback).onPublicationRetrieved(new Publication().buildPublication(networkResponse.getResponseString()));
+                                break;
+                            case CONTRIBUTION:
+                                ((PublicationCallback) connectionCallback).onReceivedContributors(new Contributor().buildContributor(networkResponse.getResponseString()));
+                                break;
+                            case POST:
+                                ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
+                                break;
+                            case PUBLICATION_POST:
+                                ((MediumPostPublicationCallback) connectionCallback).PostPublished(new Post(networkResponse.getResponseString()));
+                                break;
+                            case IMAGE_UPLOAD:
+                                ((MediumPostPublicationCallback) connectionCallback).ImageUploaded(new MediumImage(networkResponse.getResponseString()));
+                                break;
                         }
+
                     } else {
 
                         MediumError mediumError = new MediumError(networkResponse.getResponseString());
@@ -159,8 +143,62 @@ public class MediumClient {
             return postData.toString();
         }
 
-        public MediumClient build() throws MediumException, UnsupportedEncodingException {
+        private void checkCallbackProperImplementation(ApiHost apiHost) throws MediumException {
+            switch (apiHost) {
+                case REQUEST_CODE:
+                    if (!(connectionCallback instanceof MediumConnectionCallback)) {
+                        throw new MediumException("MediumConnectionCallback has to be implemented with ApiHost " + ApiHost.REQUEST_CODE);
+                    }
+                    break;
+                case ACCESS_TOKEN:
+                    if (!(connectionCallback instanceof MediumConnectionCallback)) {
+                        throw new MediumException("MediumConnectionCallback has to be implemented with ApiHost " + apiHost.name());
+                    }
+                    break;
+                case REFRESH_TOKEN:
+                    if (!(connectionCallback instanceof MediumConnectionCallback)) {
+                        throw new MediumException("MediumConnectionCallback has to be implemented with ApiHost " + apiHost.name());
+                    }
+                    break;
+                case PUBLICATION:
+                    if (!(connectionCallback instanceof PublicationCallback)) {
+                        throw new MediumException("PublicationCallback has to be implemented with ApiHost " + apiHost.name());
+                    }
+                    break;
+                case CONTRIBUTION:
+                    if (!(connectionCallback instanceof PublicationCallback)) {
+                        throw new MediumException("PublicationCallback has to be implemented with ApiHost " + apiHost.name());
+                    }
+                    break;
+                case POST:
+                    if (!(connectionCallback instanceof MediumPostPublicationCallback)) {
+                        throw new MediumException("MediumPostPublicationCallback has to be implemented with ApiHost " + apiHost.name());
+                    }
+                    break;
+                case PUBLICATION_POST:
+                    if (!(connectionCallback instanceof MediumPostPublicationCallback)) {
+                        throw new MediumException("MediumPostPublicationCallback has to be implemented with ApiHost " + apiHost.name());
+                    }
+                    break;
+                case IMAGE_UPLOAD:
+                    if (!(connectionCallback instanceof MediumPostPublicationCallback)) {
+                        throw new MediumException("MediumPostPublicationCallback has to be implemented with ApiHost " + apiHost.name());
+                    }
+                    break;
+                case ME:
+                    if (!(connectionCallback instanceof MediumUserAuthCallback)) {
+                        throw new MediumException("MediumUserAuthCallback has to be implemented with ApiHost " + apiHost.name());
+                    }
+                    break;
+                default:
+                    throw new MediumException("Unsupported APi Host");
 
+            }
+        }
+
+        public MediumClient build() throws MediumException, UnsupportedEncodingException {
+            checkCallbackProperImplementation(apiHost);
+            String url = "";
             if (apiHost == ApiHost.REQUEST_CODE) {
                 LocalBroadcastManager.getInstance(mActivity).registerReceiver(clientConnectionReceiver, new IntentFilter(ClientConstant.connectionReceiverAction));
                 params.put(RequestParams.RESPONSE_TYPE, ResponseType.CODE);
@@ -172,31 +210,27 @@ public class MediumClient {
                     apiScope = apiScope.substring(0, apiScope.length() - 1);
                 }
                 params.put(RequestParams.SCOPE, apiScope);
+                url = apiHost.getUriPath() + getParamsData();
 
-                String url = apiHost.getUriPath() + getParamsData();
-                return new MediumClient(url);
             } else if (apiHost == ApiHost.ACCESS_TOKEN || apiHost == ApiHost.REFRESH_TOKEN) {
                 params.put(RequestParams.GRANT_TYPE, apiHost.getGrantType());
                 networkParams = getParamsData();
-                return new MediumClient(apiHost.getUriPath());
-
+                url = apiHost.getUriPath();
             } else if (apiHost == ApiHost.PUBLICATION) {
-                String url = apiHost.getUriPath() + userId + "/publications";
-                return new MediumClient(url);
+                url = apiHost.getUriPath() + userId + "/publications";
             } else if (apiHost == ApiHost.CONTRIBUTION) {
-                String url = apiHost.getUriPath() + publicationId + "/contributors";
-                return new MediumClient(url);
+                url = apiHost.getUriPath() + publicationId + "/contributors";
             } else if (apiHost == ApiHost.POST) {
-                String url = apiHost.getUriPath() + userId + "/posts";
-                return new MediumClient(url);
+                networkParams = new Post().getPostObj(post);
+                url = apiHost.getUriPath() + userId + "/posts";
             } else if (apiHost == ApiHost.PUBLICATION_POST) {
-                String url = apiHost.getUriPath() + publicationId + "/posts";
-                return new MediumClient(url);
-            } else if (apiHost == ApiHost.IMAGE_UPLOAD) {
-                return new MediumClient(apiHost.getUriPath());
-            } else {
-                throw new MediumException("Unsupported APi Host");
+                networkParams = new Post().getPostObj(post);
+                url = apiHost.getUriPath() + publicationId + "/posts";
             }
+            if (url.trim().isEmpty()) {
+                url = apiHost.getUriPath();
+            }
+            return new MediumClient(url);
         }
 
         BroadcastReceiver clientConnectionReceiver = new BroadcastReceiver() {
@@ -205,16 +239,12 @@ public class MediumClient {
                 boolean isAuthSuccessful = intent.getBooleanExtra(ClientConstant.connectionStatus, false);
                 if (isAuthSuccessful) {
                     boolean grantedAccess = intent.getBooleanExtra(ClientConstant.connectionAccessStatus, false);
-                    try {
-                        if (grantedAccess) {
-                            ((MediumConnectionCallback) connectionCallback).onCodeRetrieved(intent.getExtras());
-                        } else {
-                            ((MediumConnectionCallback) connectionCallback).onAccessDenied();
-                        }
-                    } catch (ClassCastException e) {
-                        connectionCallback.connectionFailed(new MediumError("Please Implement MediumConnectionCallback", ErrorCodes.MISMATCH_CALLBACK.getErrorCode()));
-                    }
 
+                    if (grantedAccess) {
+                        ((MediumConnectionCallback) connectionCallback).onCodeRetrieved(intent.getExtras());
+                    } else {
+                        ((MediumConnectionCallback) connectionCallback).onAccessDenied();
+                    }
                 } else
                     connectionCallback.connectionFailed(new MediumError("Error occured when making request", ErrorCodes.CONNECTION_FAILED.getErrorCode()));
 

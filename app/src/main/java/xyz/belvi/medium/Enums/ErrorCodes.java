@@ -9,7 +9,6 @@ public enum ErrorCodes {
     AUTH_CODE_EXPIRED(6017),
     NO_CODE_SPECIFIED(6013),
     INVALID_USER_ID(6026),
-    MISMATCH_CALLBACK(7002),
     CONNECTION_FAILED(7000), UNKNOWN(7001);
 
     private int errorCode;
