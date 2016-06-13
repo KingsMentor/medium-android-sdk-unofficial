@@ -24,9 +24,10 @@ The first step is to *acquire a short term authorization code* .
 
 **Acquiring a short term authorization code**
 
+*requires* **MediumConnectionCallback** *to be implemented in the class*
+
 To acquire a medium authorization code with the client library, call.
 ```
-
 try {
 
             MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.REQUEST_CODE)
@@ -46,11 +47,11 @@ try {
 ```
 this will  callback:
 
-onCodeRetrieved(Bundle bundle) if oathorization was successful or
+`onCodeRetrieved(Bundle bundle)` if oathorization was successful or
 
-onAccessDenied() if user denials access or
+`onAccessDenied()` if user denials access or
 
-connectionFailed(MediumError mediumError) if an error was encountered when making the request
+`connectionFailed(MediumError mediumError)` if an error was encountered when making the request
 
 the short authorization code is sent through a bundle in onCodeRetrieved(Bundle bundle)
 
@@ -66,6 +67,8 @@ The following scope values are valid:
 
 **Exchanging authorization code for access token**
 
+*requires* **MediumConnectionCallback** *to be implemented in the class*
+
 ```
             MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.ACCESS_TOKEN)
                     .code("SHORT-AUTHORIZATION-CODE")
@@ -78,7 +81,49 @@ The following scope values are valid:
             mediumClient.connect();
   ```
   
-  this returns authorization details through:
+  this returns authorization details through the call back:
+  
+  `onAccessTokenRefreshed(OauthDetails oauthDetails)`
+  
+  
+**Refreshing access token with a refresh token**
+
+*requires* **MediumConnectionCallback** *to be implemented in the class*
+
+```
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.REFRESH_TOKEN)
+                    .refreshToken("YOUR-REFRESH-TOKEN")
+                    .redirectUri(null)
+                    .state("anySate")
+                    .addConnectionCallback(this)
+                    .clientSecret("YOUR-CLIENT-SECRET")
+                    .clientID("YOUR-CLIENT-ID").build();
+
+            mediumClient.connect();
+  ```
+  
+  this returns authorization details through the call back:
+  
+  `onAccessTokenRefreshed(OauthDetails oauthDetails);`
+  
+  
+**Retrieving User Details**
+
+*requires* **MediumUserAuthCallback** *to be implemented in the class*
+
+```
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.ME)
+                    .addConnectionCallback(this)
+                    .accessToken("YOUR-ACCESS-TOKEN")
+                    .clientSecret("YOUR-CLIENT-SECRET")
+                    .clientID("YOUR-CLIENT-ID").build();
+
+            mediumClient.connect();
+  ```
+  
+  this returns user's details through the call back:
+  
+  `onUserDetailsRetrieved(MediumUser mediumUser); `
   
 
 
