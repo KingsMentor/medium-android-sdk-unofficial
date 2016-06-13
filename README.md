@@ -9,7 +9,7 @@ The official documentation currently covers these implementation:
 - Exchanging code for access token
 - Refreshing access token
 - Retriving user details
-- Getting list of Publication from oauthecated user
+- Getting list of Publication from authorized user
 - Getttig list of contributors in a publication
 - Creating a Post
 - Creating a Post in a Publication
@@ -124,7 +124,152 @@ The following scope values are valid:
   this returns user's details through the call back:
   
   `onUserDetailsRetrieved(MediumUser mediumUser); `
+
+
+**Getting list of Publication from authorized user**
+
+*requires* **PublicationCallback** *to be implemented in the class*
+
+```
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.PUBLICATION)
+                    .addConnectionCallback(this)
+                    .userId("AUTHORISE-USER-ID")
+                    .accessToken("YOUR-ACCESS-TOKEN")
+                    .clientSecret("YOUR-CLIENT-SECRET")
+                    .clientID("YOUR-CLIENT-ID").build();
+
+            mediumClient.connect();
+  ```
   
+  this returns user's publications through the call back:
+  
+  `onPublicationRetrieved(ArrayList<Publication> publications)`
+  
+
+**Getttig list of contributors in a publication**
+
+*requires* **PublicationCallback** *to be implemented in the class*
+
+```
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.CONTRIBUTION)
+                    .addConnectionCallback(this)
+                    .userId("AUTHORISE-USER-ID")
+                    .publicationId("PUBLICATION_-ID")
+                    .accessToken("YOUR-ACCESS-TOKEN")
+                    .clientSecret("YOUR-CLIENT-SECRET")
+                    .clientID("YOUR-CLIENT-ID").build();
+
+            mediumClient.connect();
+  ```
+  
+  this returns publication contributors through the call back:
+  
+  `onReceivedContributors(ArrayList<Contributor> contributors);`
+  
+  
+**Creating a Post and Creating a Post in a Publication**
+
+*requires* **MediumPostPublicationCallback** *to be implemented in the class*
+
+
+```         
+             // start with creating a post object.
+             Post post = new Post("title","content", PublishStatus.DRAFT, ContentFormat.html,"demo","medium unofficial");
+             
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.POST)
+                    .addConnectionCallback(this)
+                    .userId("AUTHORISE-USER-ID")
+                    .publish(post)
+                    .accessToken("YOUR-ACCESS-TOKEN")
+                    .clientSecret("YOUR-CLIENT-SECRET")
+                    .clientID("YOUR-CLIENT-ID").build();
+
+            mediumClient.connect();
+            
+            // for creating post in a publication
+            // note that publication id is added to the builder and ApiHost.PUBLICATION_POST is passed 
+            
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.PUBLICATION_POST)
+                    .addConnectionCallback(this)
+                    .userId("AUTHORISE-USER-ID")
+                    .publicationId("PUBLICATION_-ID")
+                    .publish(post)
+                    .accessToken("YOUR-ACCESS-TOKEN")
+                    .clientSecret("YOUR-CLIENT-SECRET")
+                    .clientID("YOUR-CLIENT-ID").build();
+
+            mediumClient.connect();
+  ```
+  
+  this returns post object containing post creation details through the call back:
+  
+  `PostPublished(Post post);`
+  
+Publish status can be :
+- Draft
+- Unlisted
+- Public
+
+The contentFormat can be:
+- html
+- markdown
+
+
+if the post was originally published elsewhere, add a canonicalUrl with:
+
+`post.setCanonicalUrl("http://example.com");`
+
+
+
+**Uploading Image**
+
+*requires* **MediumPostPublicationCallback** *to be implemented in the class*
+
+Most integrations will not need to use this resource. **Medium will automatically side-load any images specified by the src attribute on an `<img>` tag in post content when creating a post**. However, if you are building a desktop integration and have local image files that you wish to send, you may use the images endpoint.
+
+```
+            MediumClient mediumClient = new MediumClient.Builder(this, ApiHost.IMAGE_UPLOAD)
+                    .addConnectionCallback(this)
+                    .accessToken("YOUR-ACCESS-TOKEN")
+                    .clientSecret("YOUR-CLIENT-SECRET")
+                    .image(ImageContentType.PNG,"filename.png")
+                    .clientID("YOUR-CLIENT-ID").build();
+
+            mediumClient.connect();
+  ```
+  
+  this returns Image object through the call back:
+  
+  `ImageUploaded(MediumImage mediumImage)`
+
+
+#Handling Errors
+
+If the right interface is not implemented when making the client call, it throws an exception giving information about the proper interface to implement.
+
+Other client callback extends  ConnectionCallback
+
+`public interface ConnectionCallback {
+    abstract void connectionFailed(MediumError mediumError);
+}`
+
+This handles all unsuccessful response from medium endpoint.
+
+message and error code can be gotten from `MediumError` object
+
+***illustration***
+```
+            int errorCode = mediumError.getErrorCode();
+            String errorMessage = mediumError.getErrorMessage();
+            ErrorCodes errorCodes = EnumUtils.getErrorObjByCode(errorCode);
+            switch (errorCodes) {
+                        case ACCESS_TOKEN_REQUIRED:
+                                    // do something
+                                    break;
+                        ///
+                        }
+```
+
 
 
 
