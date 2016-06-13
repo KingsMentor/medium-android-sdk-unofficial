@@ -37,12 +37,12 @@ public class ApiTest extends AppCompatActivity implements MediumConnectionCallba
                     .redirectUri(null)
                     .state("anySate")
                     .addConnectionCallback(this)
-                    .clientID("347a306d2419").build();
+                    .clientID("").build();
 
             mediumClient.connect();
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e("error :::: ",e.getMessage());
+            Log.e("error :::: ", e.getMessage());
         }
     }
 
