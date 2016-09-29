@@ -1,5 +1,14 @@
 # medium-android-sdk-unofficial
+[![](https://jitpack.io/v/KingsMentor/medium-android-sdk-unofficial.svg)](https://jitpack.io/#KingsMentor/medium-android-sdk-unofficial)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+
 Unoffical implementation of medium api for android . See https://github.com/Medium/medium-api-docs for medium official documentation
+
+# Adding to your project.
+	dependencies {
+	        compile 'com.github.KingsMentor:medium-android-sdk-unofficial:-SNAPSHOT'
+	}
+
 
 #Building a Medium Client:
 
@@ -269,6 +278,28 @@ message and error code can be gotten from `MediumError` object
                         ///
                         }
 ```
+
+
+## License
+
+```
+Copyright (C) 2016 Roman Nurik
+Copyright (C) 2016 Kizito Nwose
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
+
 
 
 
